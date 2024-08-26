@@ -2,9 +2,19 @@
 import dotenv from "dotenv"; //since require wala statement and import wala ek sath nahi use krna in code
 
 import connectDB from "./db/index.js";
+import { app } from "./app.js";
 
+//note: databaseconnection in index.js
 dotenv.config({ path: "./env" }); //As early as possible in your application, import and configure dotenv:
-connectDB(); //import and call connectDB
+connectDB()
+  .then(() => {
+    app.listen(process.env.PORT || 8000, () => {
+      console.log(`Server is running on port ${process.env.PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.log("MongoDB connection failed!", err);
+  }); //import and call connectDB
 
 // import express from "express";
 // const app = express();
