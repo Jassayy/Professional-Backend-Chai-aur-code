@@ -9,9 +9,17 @@ export const verifyJWT = asyncHandler(async (req, _, next) => {
       req.cookies?.accessToken ||
       req.header("Authorization")?.replace("Bearer ", "");
 
-    if (!token) {
-      throw new ApiError(401, "Unauthorized request");
+    console.log("Token from Cookies:", req.cookies?.accessToken); // Debugging line
+    console.log("Token from Header:", req.header("Authorization"));
+
+    if (!token || typeof token !== "string") {
+      throw new ApiError(
+        401,
+        "Unauthorized request : Token is missing or invalid"
+      );
     }
+
+    console.log("Token: ", token);
 
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 

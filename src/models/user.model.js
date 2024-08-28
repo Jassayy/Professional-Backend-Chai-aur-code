@@ -60,8 +60,8 @@ userSchema.pre("save", async function (next) {
 });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
-  console.log("Entered password:", password);
-  console.log("Hashed password from DB:", this.password);
+  // console.log("Entered password:", password);
+  // console.log("Hashed password from DB:", this.password);
 
   if (!password || !this.password) {
     throw new ApiError("Both password and hash are required");
@@ -69,13 +69,13 @@ userSchema.methods.isPasswordCorrect = async function (password) {
 
   const match = await bcrypt.compare(password, this.password);
 
-  console.log("Password comparison match :", match);
+  // console.log("Password comparison match :", match);
   return match;
 };
 
 //TOKEN WILL GET GENERATED LIKE THIS
 userSchema.methods.generateAccessToken = async function () {
-  jwt.sign(
+  return jwt.sign(
     {
       _id: this._id,
       email: this.email,
@@ -91,7 +91,7 @@ userSchema.methods.generateAccessToken = async function () {
 
 //GENERATES REFRESH TOKEN BUT IT NEEDS LESS THINGS AS IT GET REFRESHED AGAIN AND AGAIN
 userSchema.methods.generateRefreshToken = async function () {
-  jwt.sign(
+  return jwt.sign(
     {
       _id: this._id,
     },
