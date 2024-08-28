@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { ApiError } from "../utils/apiError.js";
 
 const userSchema = new Schema(
   {
@@ -50,12 +51,26 @@ const userSchema = new Schema(
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
+  try {
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
+  } catch (error) {
+    return next("Error hashing password", error);
+  }
 });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
-  return await bcrypt.compare(password, this.password);
+  console.log("Entered password:", password);
+  console.log("Hashed password from DB:", this.password);
+
+  if (!password || !this.password) {
+    throw new ApiError("Both password and hash are required");
+  }
+
+  const match = await bcrypt.compare(password, this.password);
+
+  console.log("Password comparison match :", match);
+  return match;
 };
 
 //TOKEN WILL GET GENERATED LIKE THIS
@@ -82,7 +97,7 @@ userSchema.methods.generateRefreshToken = async function () {
     },
     process.env.REFRESH_TOKEN_SECRET,
     {
-      expiresIn: process.env.REFRESH_TOKEN_SECRET,
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
     }
   );
 };
